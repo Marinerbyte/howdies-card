@@ -5,152 +5,92 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome Card</title>
     <style>
-        html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: transparent;
+        body {
             font-family: Arial, sans-serif;
-        }
-        .card-wrapper {
-            width: 340px;
-            height: 420px;
-            box-sizing: border-box;
-            overflow: hidden;
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
-            border-radius: 20px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .card {
+            background: white;
             padding: 20px;
-            animation: fadeIn 1.2s ease-out;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .avatar-container {
-            perspective: 1000px;
-            width: 120px;
-            height: 120px;
-            margin-bottom: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            text-align: center;
         }
         .avatar {
-            width: 120px;
-            height: 120px;
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
-            object-fit: cover;
-            border: 5px solid #fff;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s ease;
-            transform-style: preserve-3d;
-        }
-        .avatar-container:hover .avatar {
-            transform: rotateY(10deg) rotateX(10deg) scale(1.1);
-        }
-        .username {
-            font-size: 26px;
-            font-weight: 700;
-            color: #fff;
-            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
-            margin: 10px 0;
-            text-align: center;
-        }
-        .welcome-message {
-            font-size: 16px;
-            color: #fff;
-            text-align: center;
-            line-height: 1.5;
-            max-width: 280px;
-            background: rgba(255, 255, 255, 0.2);
-            padding: 10px 15px;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-            transform: translateZ(20px);
-            transition: transform 0.3s ease;
-        }
-        .welcome-message:hover {
-            transform: translateZ(30px);
-        }
-        .tracking-pixel {
-            display: none;
+            margin-bottom: 10px;
         }
         .consent-popup {
-            display: none;
-            position: absolute;
-            bottom: 10px;
-            left: 10px;
-            right: 10px;
-            background: #fff;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            font-size: 14px;
-            text-align: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
-        .consent-popup button {
-            background: #4ecdc4;
-            color: #fff;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
+        .consent-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
         }
     </style>
 </head>
 <body>
-    <div class="card-wrapper">
-        <div class="avatar-container">
-            <img class="avatar" src="" alt="User Avatar">
-        </div>
-        <div class="username">Guest</div>
-        <div class="welcome-message">Hey Guest! 🎉 Ready to chat & vibe? 🚀 Let's share memes or jam to music! 🎶</div>
-        <img class="tracking-pixel" src="" alt="">
-        <div class="consent-popup">
-            <p>We track visits for analytics. OK?</p>
+    <div id="consentPopup" class="consent-popup" style="display: none;">
+        <div class="consent-box">
+            <p>We track visits to improve your experience. Do you consent?</p>
             <button onclick="acceptConsent()">Accept</button>
         </div>
     </div>
+
+    <div id="welcomeCard" class="card" style="display: none;">
+        <img id="avatar" class="avatar" src="" alt="Avatar">
+        <h2>Welcome, <span id="username">User</span>!</h2>
+        <p>We're glad you're here!</p>
+    </div>
+
     <script>
-        // Parse URL parameters
-        const params = new URLSearchParams(window.location.search);
-        const username = decodeURIComponent(params.get('username') || 'Guest');
-        const avatar = decodeURIComponent(params.get('avatar') || '');
-
-        // Set username with fallback
-        const usernameElement = document.querySelector('.username');
-        const welcomeMessageElement = document.querySelector('.welcome-message');
-        const validUsername = (username && username !== '$username$' && username !== '[ENCODED_...]' && username.trim() !== '') ? username : 'Guest';
-        usernameElement.textContent = validUsername;
-        welcomeMessageElement.textContent = `Hey ${validUsername}! 🎉 Ready to chat & vibe? 🚀 Let's share memes or jam to music! 🎶`;
-
-        // Set avatar with fallback
-        const avatarElement = document.querySelector('.avatar');
-        const defaultAvatar = 'https://robohash.org/guest.png';
-        avatarElement.src = defaultAvatar;
-        if (avatar && avatar !== '$avatar$' && avatar.trim() !== '') {
-            avatarElement.src = avatar;
-        }
-        avatarElement.onerror = () => {
-            avatarElement.src = defaultAvatar;
-        };
-
-        // Consent and tracking
-        const trackingPixel = document.querySelector('.tracking-pixel');
-        function acceptConsent() {
-            localStorage.setItem('analytics_consent', 'true');
-            document.querySelector('.consent-popup').style.display = 'none';
-            trackingPixel.src = `https://your-site-name.netlify.app/.netlify/functions/track-visit?username=${encodeURIComponent(validUsername)}&t=${Date.now()}`;
-        }
-        if (!localStorage.getItem('analytics_consent')) {
-            document.querySelector('.consent-popup').style.display = 'block';
-            trackingPixel.src = '';
+        // Check if consent is already given
+        if (!localStorage.getItem('consentGiven')) {
+            document.getElementById('consentPopup').style.display = 'flex';
         } else {
-            trackingPixel.src = `https://your-site-name.netlify.app/.netlify/functions/track-visit?username=${encodeURIComponent(validUsername)}&t=${Date.now()}`;
+            showCardAndTrack();
+        }
+
+        function acceptConsent() {
+            localStorage.setItem('consentGiven', 'true');
+            document.getElementById('consentPopup').style.display = 'none';
+            showCardAndTrack();
+        }
+
+        function showCardAndTrack() {
+            // Get query parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const username = urlParams.get('username') || 'Unknown';
+            const avatar = urlParams.get('avatar') || 'https://example.com/default-avatar.jpg';
+            const timestamp = Date.now();
+
+            // Show welcome card
+            document.getElementById('welcomeCard').style.display = 'block';
+            document.getElementById('username').textContent = username;
+            document.getElementById('avatar').src = avatar;
+
+            // Call track-visit function
+            const img = document.createElement('img');
+            img.src = `/.netlify/functions/track-visit?username=${username}&t=${timestamp}`;
+            img.style.display = 'none';
+            document.body.appendChild(img);
         }
     </script>
 </body>

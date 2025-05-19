@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome Card</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: transparent;
+            font-family: Arial, sans-serif;
+        }
+        .card-wrapper {
+            width: 340px;
+            height: 420px;
+            box-sizing: border-box;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+            border-radius: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            animation: fadeIn 1.2s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .avatar-container {
+            perspective: 1000px;
+            width: 120px;
+            height: 120px;
+            margin-bottom: 15px;
+        }
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid #fff;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+            transform-style: preserve-3d;
+        }
+        .avatar-container:hover .avatar {
+            transform: rotateY(10deg) rotateX(10deg) scale(1.1);
+        }
+        .username {
+            font-size: 26px;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+            margin: 10px 0;
+            text-align: center;
+        }
+        .welcome-message {
+            font-size: 16px;
+            color: #fff;
+            text-align: center;
+            line-height: 1.5;
+            max-width: 280px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transform: translateZ(20px);
+            transition: transform 0.3s ease;
+        }
+        .welcome-message:hover {
+            transform: translateZ(30px);
+        }
+        .tracking-pixel {
+            display: none;
+        }
+        .consent-popup {
+            display: none;
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            right: 10px;
+            background: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            font-size: 14px;
+            text-align: center;
+        }
+        .consent-popup button {
+            background: #4ecdc4;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="card-wrapper">
+        <div class="avatar-container">
+            <img class="avatar" src="" alt="User Avatar">
+        </div>
+        <div class="username">Guest</div>
+        <div class="welcome-message">Hey Guest! 🎉 Ready to chat & vibe? 🚀 Let's share memes or jam to music! 🎶</div>
+        <img class="tracking-pixel" src="" alt="">
+        <div class="consent-popup">
+            <p>We track visits for analytics. OK?</p>
+            <button onclick="acceptConsent()">Accept</button>
+        </div>
+    </div>
+    <script>
+        // Parse URL parameters
+        const params = new URLSearchParams(window.location.search);
+        const username = decodeURIComponent(params.get('username') || 'Guest');
+        const avatar = decodeURIComponent(params.get('avatar') || '');
+
+        // Set username with fallback
+        const usernameElement = document.querySelector('.username');
+        const welcomeMessageElement = document.querySelector('.welcome-message');
+        const validUsername = (username && username !== '$username$' && username !== '[ENCODED_...]' && username.trim() !== '') ? username : 'Guest';
+        usernameElement.textContent = validUsername;
+        welcomeMessageElement.textContent = `Hey ${validUsername}! 🎉 Ready to chat & vibe? 🚀 Let's share memes or jam to music! 🎶`;
+
+        // Set avatar with fallback
+        const avatarElement = document.querySelector('.avatar');
+        const defaultAvatar = 'https://robohash.org/guest.png';
+        avatarElement.src = defaultAvatar;
+        if (avatar && avatar !== '$avatar$' && avatar.trim() !== '') {
+            avatarElement.src = avatar;
+        }
+        avatarElement.onerror = () => {
+            avatarElement.src = defaultAvatar;
+        };
+
+        // Consent and tracking
+        const trackingPixel = document.querySelector('.tracking-pixel');
+        function acceptConsent() {
+            localStorage.setItem('analytics_consent', 'true');
+            document.querySelector('.consent-popup').style.display = 'none';
+            trackingPixel.src = `https://your-site-name.netlify.app/.netlify/functions/track-visit?username=${encodeURIComponent(validUsername)}&t=${Date.now()}`;
+        }
+        if (!localStorage.getItem('analytics_consent')) {
+            document.querySelector('.consent-popup').style.display = 'block';
+            trackingPixel.src = '';
+        } else {
+            trackingPixel.src = `https://your-site-name.netlify.app/.netlify/functions/track-visit?username=${encodeURIComponent(validUsername)}&t=${Date.now()}`;
+        }
+    </script>
+</body>
+</html>
